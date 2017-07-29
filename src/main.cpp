@@ -8,7 +8,7 @@
 using json = nlohmann::json;
 
 // For converting back and forth between radians and degrees.
-constexpr double pi() { return std::atan(1)*4; }
+constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
 double rad2deg(double x) { return x * 180 / pi(); }
 
@@ -41,7 +41,7 @@ int main()
     // The 2 signifies a websocket event
     if (length && length > 2 && data[0] == '4' && data[1] == '2')
     {
-      auto s = hasData(std::string(data));
+      auto s = hasData(std::string(data).substr(0, length));
       if (s != "") {
         auto j = json::parse(s);
         std::string event = j[0].get<std::string>();
