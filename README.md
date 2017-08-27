@@ -4,7 +4,7 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
-##Instructions
+## Instructions
 
 The code is depending on the hardware, so it turned out that even
 the recording on high resolution has an impact on how well the car drives on the road.
@@ -16,7 +16,7 @@ Depending on the underlying hardware this can differ and
 the parameters of the speed controller can be chosen more conservative, like changing P from 0.39 to 0.45. That
 will led to slow down more often in curves.
 
-##Reflections
+## Reflections
 
 First i started implementing the P controller following the lessons and slightly approximate all PID params.
 
@@ -44,14 +44,14 @@ As the track has mostly left curves i choose the "I" term factor so that the car
 thus is able to drive a bit faster.
 
 
-###Summary
+### Summary
 
 * P (Proportional) = Proportion to the error itself
 * D (Differential) = Proportion to the change of the error
 * I (Integral)     = Proportion to the Integral or sum of all errors observed.
  
 
-##Video
+## Video
 
 [![Watch the video](https://img.youtube.com/vi/d1PKWdPvfYE/0.jpg)](https://youtu.be/d1PKWdPvfYE)
 
