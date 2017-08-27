@@ -3,6 +3,52 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+##Instructions
+The code is depending on the hardware, so it turned out that even
+the recording on high resolution has an impact on how well the car drives on the road.
+
+So the final parameters are a mix between good driving and recording. As seen in the video
+the car is able to drive around the track. 
+
+Depending on the underlying hardware this can differ and
+the parameters of the speed controller can be chosen more conservative, like changing P from 0.39 to 0.45. That
+will led to slow down more often in curves.
+
+##Reflections
+First i started implementing the P controller following the lessons and slightly approximate all PID params.
+
+The steering angle tau is a factor which is proportional to the Cross Track Error (CTE) that makes the car oscillating 
+around the reference track because it overshoots basically all the time.
+That makes the car able to do sharp turns.
+So P has been chosen to be able to oscillate around the track without leaving it.
+
+As we do not want to oscillate on the straight parts of the track we need a factor that 
+reduces the oscillation where the CTE is getting closer to the reference.
+The temporal derivate of the CTE, the "D" term, is added to the steering angle, which basically recognizes when
+the car is getting closer again to the reference and starts to countersteer the oscillating of the "P" term and
+allow a graceful approaching of our target projectory.
+So i increased the "D" term slightly to visually reduce the oscillation in a way, that the car
+is still able to drive around the track but without wild oscillations.
+
+Usually in the real world, the steering of the car is not 100% ideal, that means there is always a
+systematic bias which most of us unconsciously correct by steering stronger.
+
+As in our simulation we do have a ideal steering conditions and not any other disturbances like constant wind which could add such a bias,
+so we do not necessarily need it for the solution.
+
+I used it for increasing the angle of the steering a little bit earlier for sharp turns.
+As the track has mostly left curves i choose the "I" term factor so that the car is more to the inner side of the track.
+
+
+###Summary
+* P (Proportional) = Proportion to the error itself
+* D (Differential) = Proportion to the change of the error
+* I (Integral)     = Proportion to the Integral or sum of all errors observed.
+ 
+
+##Video
+[![Watch the video](https://img.youtube.com/vi/d1PKWdPvfYE/0.jpg)](https://youtu.be/d1PKWdPvfYE)
+
 ## Dependencies
 
 * cmake >= 3.5
