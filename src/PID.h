@@ -12,9 +12,9 @@ public:
     /*
     * Errors
     */
-    double p_error;
-    double i_error;
-    double d_error;
+    double last_error;
+    double sum_error;
+    double change_error;
 
     /*
     * Coefficients
@@ -22,6 +22,10 @@ public:
     double Kp;
     double Ki;
     double Kd;
+
+    bool pActive;
+    bool dActive;
+    bool iActive;
 
     double best_err;
 
@@ -64,7 +68,7 @@ public:
     /*
     * Update the PID error variables given cross track error.
     */
-    void UpdateError(double cte);
+    void UpdateError(double current_error);
 
     /*
     * Calculate the total PID error.

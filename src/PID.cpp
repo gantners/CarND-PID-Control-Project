@@ -13,14 +13,18 @@ PID::~PID() {}
 /*
 * Initialize PID.
 */
-void PID::Init(double Kp, double Ki, double Kd) {
+void PID::Init(double Kp, double Kd, double Ki) {
     this->Kp = Kp;
-    this->Ki = Ki;
     this->Kd = Kd;
+    this->Ki = Ki;
 
-    this->p_error = 0.0;
-    this->i_error = 0.0;
-    this->d_error = 0.0;
+    this->pActive = true;
+    this->dActive = true;
+    this->iActive = true;
+
+    this->last_error = 0.0;
+    this->sum_error = 0.0;
+    this->change_error = 0.0;
 
     this->best_err = 1000.0;
 
@@ -47,17 +51,17 @@ void PID::Init(double Kp, double Ki, double Kd) {
 /*
   * Update the PID error variables given cross track error.
   */
-void PID::UpdateError(double cte) {
+void PID::UpdateError(double current_error) {
     if (current_step == 1) {
-        p_error = cte;
+        last_error = current_error;
     }
-    d_error = cte - p_error;
-    p_error = cte;
-    i_error += p_error;
+    change_error = current_error - last_error;
+    last_error = current_error;
+    sum_error += current_error;
 
     //Parameter optimization L135
     //if (current_step % (patience_steps + iterations) >= patience_steps) {
-        //total_error += pow(cte, 2);
+        //total_error += pow(current_error, 2);
         //total_error /= iterations;
         //cout << "total_err: " << total_error << endl;
     //}
@@ -73,7 +77,15 @@ void PID::UpdateError(double cte) {
   * Calculate the total PID error.
   */
 double PID::TotalError(double Kp, double Kd, double Ki) {
-    return -p_error * Kp - d_error * Kd - i_error * Ki;
+    double val = 0.0;
+    if(pActive)
+        val -= Kp * last_error;
+    if(dActive)
+        val -= Kd * change_error;
+    if(iActive)
+        val -= Ki * sum_error;
+
+    return val;
 }
 
 void PID::twiddle() {

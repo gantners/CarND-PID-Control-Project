@@ -44,12 +44,16 @@ int main() {
     PID pid_speed;
     // TODO: Initialize the pid variable
     // Taken from lessons
-    //pid_steer.Init(-0.25, 0.0001, -3.0); //Initial manual guess
-    //with twiddle P: 0.1882, I: 0.000363842, D: 3.57564
-    pid_steer.Init(0.18, 0.0, 0.0);
+    //pid_steer.Init(0.25, 3.0, 0.0001); //Initial manual guess
+    //with twiddle P: 0.1882, D: 3.57564, I: 0.000363842
+    //pid_steer.Init(0.0995, 2.975, 0.001);
+    pid_steer.Init(0.0995, 2.975, 0.0005);
+    // pid_speed.Init(0.4, 0.05, 0.00003);
+    pid_speed.Init(0.39, 0.15, 0.00002);
+    double target_throttle = 1.0;
 
     h.onMessage(
-            [&pid_steer, &pid_speed](uWS::WebSocket <uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+            [&pid_steer, &pid_speed, &target_throttle](uWS::WebSocket <uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
                 // "42" at the start of the message means there's a websocket message event.
                 // The 4 signifies a websocket message
                 // The 2 signifies a websocket event
@@ -65,38 +69,40 @@ int main() {
                             double speed = std::stod(j[1]["speed"].get<std::string>());
                             double angle = std::stod(j[1]["steering_angle"].get<std::string>());
                             double steer_value;
-                            double throttle_value = 0.5;
-
-                            /*
-                            * TODO: Calculate steering value here, remember the steering value is
-                            * [-1, 1].
-                            * NOTE: Feel free to play around with the throttle and speed. Maybe use
-                            * another PID controller to control the speed!
-                            */
 
                             pid_steer.UpdateError(cte);
                             steer_value = pid_steer.TotalError(pid_steer.Kp, pid_steer.Kd, pid_steer.Ki);
 
+                            pid_speed.UpdateError(fabs(cte));
+                            double new_throttle = target_throttle + pid_speed.TotalError(pid_speed.Kp, pid_speed.Kd, pid_speed.Ki);
+
                             json msgJson;
                             msgJson["steering_angle"] = steer_value;
-                            msgJson["throttle"] = throttle_value;
+                            msgJson["throttle"] = new_throttle;
                             auto msg = "42[\"steer\"," + msgJson.dump() + "]";
                             //std::cout << msg << std::endl;
                             ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
-                            if (pid_steer.current_step % 100 == 0) {
-                                std::cout << "Step: " << pid_steer.current_step << std::endl;
-                                std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
-                            }
-                            //Reset on too large values
-                            if (pid_steer.total_error > 0.01) {
+                            /*if (pid_steer.current_step % 10 == 0) {
+                                std::cout << "Step: " << pid_steer.current_step
+                                          << "\tCTE: " << cte
+                                          << "\tSteering: " << steer_value
+                                          << "\tAngle: " << angle
+                                          << "\tSpeed: " << speed
+                                          << "\tThrottle: " << new_throttle
+                                          << std::endl;
+                            }*/
+
+                            //Reset on too large values for twiddle
+                            /*if (pid_steer.total_error > 0.01) {
                                 std::cout << "Reset to last known good configuration" << std::endl;
                                 std::cout << "P: " << pid_steer.Kp << ", I: " << pid_steer.Ki << ", D: " << pid_steer.Kd
                                           << ", best_err: " << pid_steer.best_err << ", total_err: "
                                           << pid_steer.total_error << std::endl;
-                                //pid_steer.dp = pid_steer.last_good;
-                                //Restart(ws);
-                            }
+                                pid_steer.dp = pid_steer.last_good;
+                                Restart(ws);
+                            }*/
+
                         }
                     } else {
                         // Manual driving
