@@ -18,6 +18,8 @@ will led to slow down more often in curves.
 
 ## Reflections
 
+### Steering Controller
+
 First i started implementing the P controller following the lessons and slightly approximate all PID params.
 
 The steering angle tau is a factor which is proportional to the Cross Track Error (CTE) that makes the car oscillating 
@@ -43,6 +45,24 @@ I used it for increasing the angle of the steering a little bit earlier for shar
 As the track has mostly left curves i choose the "I" term factor so that the car is more to the inner side of the track and
 thus is able to drive a bit faster.
 
+### Speed Controller
+
+As the car was already able to drive around the track with a speed constant of 0.5, i wanted to add another pid controller for 
+reducing the throttle when CTE of steering is to high.
+So i created another instance of my current steering controller and change the PID params accordingly.
+
+#### How the final params have been chosen
+
+For the steering controller it's already described in the steering controller section above.
+In general and especially for the speed controller it was mostly trial and error starting from increasing P and D alternatingly.
+
+I tried to implement twiddle for the steering controller but did not very much succeed with it,
+as it seemed odd to me to restart the sim for each param change.
+
+So the way i went about it, was to implement a sort of on the fly twiddle where the params are 
+constantly changed and set back to the last known good configuration in case the CTE went too high.
+
+But this approach did no lead to better params than how i did it manually with trial and error.
 
 ### Summary
 
